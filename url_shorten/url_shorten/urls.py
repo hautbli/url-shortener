@@ -16,7 +16,9 @@ Including another URLconf
 from django.conf.urls import url
 from django.contrib import admin
 from django.urls import path, include
+from rest_framework.authtoken import views
 from rest_framework.routers import SimpleRouter
+
 from users.views import UserViewSet
 
 router = SimpleRouter()
@@ -24,5 +26,6 @@ router.register(r'users', UserViewSet, basename='users')
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    url('',include(router.urls))
+    url('', include(router.urls)),
+    url(r'^login/', views.obtain_auth_token),
 ]
