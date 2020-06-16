@@ -4,12 +4,14 @@ from django.shortcuts import render
 
 # Create your views here.
 from django.utils.translation import ugettext_lazy
-from rest_framework import status
+from rest_framework import status, mixins
 from rest_framework.decorators import action
+from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
-from rest_framework.viewsets import ModelViewSet
+from rest_framework.viewsets import ModelViewSet, GenericViewSet
 
 from url_shorten import settings
+from users.permissions import IsOwner
 from users.serializers import UserSerializer
 from django.contrib.auth import (
     login as django_login,
@@ -17,7 +19,15 @@ from django.contrib.auth import (
 )
 
 
-class UserViewSet(ModelViewSet):
+class UserModelViewSet(mixins.CreateModelMixin,
+                       mixins.RetrieveModelMixin,
+                       mixins.UpdateModelMixin,
+                       mixins.DestroyModelMixin,
+                       GenericViewSet):
+    pass
+
+
+class UserViewSet(UserModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
 
@@ -26,6 +36,7 @@ class UserViewSet(ModelViewSet):
         try:
             request.user.auth_token.delete()
         except (AttributeError, ObjectDoesNotExist):
+            # pass
             response = Response({"detail": "log out -> fail! ! "},
                                 status=status.HTTP_404_NOT_FOUND)
             return response
@@ -36,3 +47,11 @@ class UserViewSet(ModelViewSet):
                             status=status.HTTP_200_OK)
 
         return response
+
+    def get_permissions(self):
+        if self.action == 'create':
+            return [AllowAny()]
+        elif self.action in ['update', 'destroy', 'retrieve']:
+            return [IsOwner()]
+        return super().get_permissions()
+
