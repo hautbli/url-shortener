@@ -19,11 +19,12 @@ from django.urls import path, include
 from rest_framework.authtoken import views
 from rest_framework.routers import SimpleRouter
 
+from shortener.views import ShortenerViewSet
 from users.views import UserViewSet
 
 router = SimpleRouter()
 router.register(r'users', UserViewSet, basename='users')
-
+router.register(r'shortener', ShortenerViewSet, basename='shortener')
 urlpatterns = [
     path('admin/', admin.site.urls),
     url('', include(router.urls)),
