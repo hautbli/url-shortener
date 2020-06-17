@@ -23,6 +23,6 @@ class ShortenerSerializer(ModelSerializer):
 
     def create(self, validated_data):
         instance = super().create(validated_data)
-        instance.url_af = ('http://happy.'+base62(instance.id))
+        instance.url_af = (base62(instance.id))
         instance.save()
         return instance
