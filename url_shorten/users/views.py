@@ -5,6 +5,8 @@ from django.shortcuts import render
 # Create your views here.
 from django.utils.translation import ugettext_lazy
 from rest_framework import status, mixins
+from rest_framework.authtoken.models import Token
+from rest_framework.authtoken.serializers import AuthTokenSerializer
 from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
@@ -19,28 +21,24 @@ from django.contrib.auth import (
 )
 
 
-class UserModelViewSet(mixins.CreateModelMixin,
-                       mixins.RetrieveModelMixin,
-                       mixins.UpdateModelMixin,
-                       mixins.DestroyModelMixin,
-                       GenericViewSet):
-    pass
-
-
-class UserViewSet(UserModelViewSet):
+class UserViewSet(mixins.CreateModelMixin,
+                  mixins.RetrieveModelMixin,
+                  mixins.UpdateModelMixin,
+                  mixins.DestroyModelMixin,
+                  GenericViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
 
-    @action(detail=False)
+    @action(methods=["post"], detail=False)
     def login(self, request):
-        serializer = self.serializer_class(data=request.data,
+        serializer = AuthTokenSerializer(data=request.data,
                                            context={'request': request})
         serializer.is_valid(raise_exception=True)
         user = serializer.validated_data['user']
         token, created = Token.objects.get_or_create(user=user)
         return Response({'token': token.key})
 
-    @action(detail=False)
+    @action(methods=["delete"], detail=False)
     def logout(self, request):
         try:
             request.user.auth_token.delete()
@@ -54,9 +52,11 @@ class UserViewSet(UserModelViewSet):
         return response
 
     def get_permissions(self):
+
         if self.action == 'create':
             return [AllowAny()]
         elif self.action in ['update', 'destroy', 'retrieve']:
             return [IsOwner()]
+        elif self.action == 'login' :
+            return [AllowAny()]
         return super().get_permissions()
-
