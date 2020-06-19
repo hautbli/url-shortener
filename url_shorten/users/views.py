@@ -32,20 +32,25 @@ class UserViewSet(UserModelViewSet):
     serializer_class = UserSerializer
 
     @action(detail=False)
+    def login(self, request):
+        serializer = self.serializer_class(data=request.data,
+                                           context={'request': request})
+        serializer.is_valid(raise_exception=True)
+        user = serializer.validated_data['user']
+        token, created = Token.objects.get_or_create(user=user)
+        return Response({'token': token.key})
+
+    @action(detail=False)
     def logout(self, request):
         try:
             request.user.auth_token.delete()
         except (AttributeError, ObjectDoesNotExist):
-            # pass
             response = Response({"detail": "log out -> fail! ! "},
                                 status=status.HTTP_404_NOT_FOUND)
             return response
-        if getattr(settings, 'REST_SESSION_LOGIN', True):
-            django_logout(request)
 
         response = Response({"detail": "Successfully logged out."},
                             status=status.HTTP_200_OK)
-
         return response
 
     def get_permissions(self):
