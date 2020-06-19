@@ -30,5 +30,4 @@ router.register(r'happy', RedirecturlViewSet, basename='redirect')
 urlpatterns = [
     path('admin/', admin.site.urls),
     url('', include(router.urls)),
-    path('login/', views.obtain_auth_token),
 ]
