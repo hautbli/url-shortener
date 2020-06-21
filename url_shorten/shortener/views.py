@@ -48,6 +48,8 @@ class RedirecturlViewSet(mixins.RetrieveModelMixin, GenericViewSet):
     permission_classes = [AllowAny]
     throttle_classes = []
 
+
+
     def retrieve(self, request, *args, **kwargs):
         instance = self.get_object()
         serializer = self.get_serializer(instance)
@@ -68,5 +70,10 @@ class RedirecturlViewSet(mixins.RetrieveModelMixin, GenericViewSet):
         obj = get_object_or_404(queryset, **filter_kwargs)
         self.check_object_permissions(self.request, obj)
         return obj
+
+    def get_permissions(self):
+        if self.action == 'retrieve':
+            pass
+        return super().get_permissions()
 
 
