@@ -67,13 +67,13 @@ class UserTestCase(APITestCase):
 
     def test_should_logout(self):
         # 로그인할 유저의 토큰을 구한다
-        response_login = self.client.post('/login/', data=self.data)  # return -> 사용자의 토큰 {'token' : 'sdfsdf}
+        response_login = self.client.post('/users/login/', data=self.data)  # return -> 사용자의 토큰 {'token' : 'sdfsdf}
         token = response_login.data['token']
 
         # 토큰을 가진 유저가 request를 한다
         self.client.force_authenticate(user=self.user, token=token)
 
-        response = self.client.get('/users/logout/')
+        response = self.client.delete('/users/logout/')
 
         is_token_exists = Token.objects.filter(pk=token).exists()
 
@@ -81,7 +81,7 @@ class UserTestCase(APITestCase):
         self.assertFalse(is_token_exists)
 
     def test_should_login(self):
-        response = self.client.post('/login/', data=self.data)
+        response = self.client.post('/users/login/', data=self.data)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 

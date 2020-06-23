@@ -6,4 +6,4 @@ from shortener.models import Shortener
 class ShortenerSerializer(ModelSerializer):
     class Meta:
         model = Shortener
-        fields = ('url_bf', 'url_af',)
+        fields = ('url_bf', 'url_af','count',)
