@@ -48,10 +48,10 @@ class RedirecturlViewSet(mixins.RetrieveModelMixin, GenericViewSet):
     permission_classes = [AllowAny]
     throttle_classes = []
 
-
-
     def retrieve(self, request, *args, **kwargs):
         instance = self.get_object()
+        instance.count += 1
+        instance.save()
         serializer = self.get_serializer(instance)
         return HttpResponseRedirect(serializer.data['url_bf'])
 

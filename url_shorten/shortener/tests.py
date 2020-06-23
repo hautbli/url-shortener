@@ -24,6 +24,7 @@ class ShortenerTestCase(APITestCase):
         self.assertEqual(user_response['url_bf'], self.origin_url)
 
     def test_redirect(self):
+        """리다이렉트 하는 url = request url"""
         shortener = Shortener.objects.create(url_bf='https://www.fc.com')
 
         response = self.client.get(shortener.url_af+'/')
@@ -37,3 +38,5 @@ class ShortenerTestCase(APITestCase):
 
         data = {'url_bf': self.origin_url}
         response = self.client.post('/shortener/', data=data)
+
+

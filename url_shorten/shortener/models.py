@@ -11,14 +11,18 @@ class Shortener(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='shorteners', null=True)
     url_bf = models.URLField(null=False)
     url_af = models.URLField(max_length=200, default="")
+    count = models.PositiveIntegerField(default=0)
 
     def save(self, force_insert=False, force_update=False, using=None,
              update_fields=None):
 
         # self.long_to_short()
         self.not_duplicated = True
-        self.url_af = self.uuid_long_to_short()
-        if self.not_duplicated:
+        if self.count == 0 :
+            self.url_af = self.uuid_long_to_short()
+            if self.not_duplicated:
+                super().save()
+        else :
             super().save()
 
     def uuid_long_to_short(self):
@@ -32,6 +36,7 @@ class Shortener(models.Model):
             print("중복 5회 이상! ")
             self.not_duplicated = False
 
+    # current time -> shorturl
     # def base62(self, number):
     #
     #     result = ""
